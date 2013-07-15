@@ -10,12 +10,16 @@ import static org.neo4j.cypherdsl.CypherQuery.start;
 import static org.neo4j.cypherdsl.Order.DESCENDING;
 
 import java.util.HashSet;
+import java.util.Map;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.ExecutionResult;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.data.neo4j.conversion.Handler;
@@ -74,10 +78,14 @@ public class QueryTest {
 
     @Test
     public void queryWithExecutionEngine() {
-        executionEngine.execute("CYPHER 1.9 "
+        ExecutionResult result = executionEngine.execute("CYPHER 1.9 "
                 + "START entity=node:global(\"(coll_name:*collab*) OR (collab_desc:*collab*)\") "
                 + "MATCH (entity)-[:HAS|ANOTHER_REL_TYPE]->(x) WHERE entity.visibility? = \"PUBLIC\" "
                 + "RETURN DISTINCT entity " + "ORDER BY id(entity) DESCENDING");
+
+        for (Map<String, Object> row: result ) {
+            Assert.assertEquals( "result row contains more than on element", 1, row.size() );  // FIXME: result contains an entry with key =   UNNAMEDS-1969700807
+        }
     }
 
     // FIXME Failing test!
