@@ -9,6 +9,7 @@ import static org.neo4j.cypherdsl.CypherQuery.query;
 import static org.neo4j.cypherdsl.CypherQuery.start;
 import static org.neo4j.cypherdsl.Order.DESCENDING;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -79,6 +80,24 @@ public class QueryTest {
     @Test
     public void queryWithExecutionEngine() {
         ExecutionResult result = executionEngine.execute("CYPHER 1.9 "
+                + "START entity=node:global(\"(coll_name:*collab*) OR (collab_desc:*collab*)\") "
+                + "MATCH (entity)-[:HAS|ANOTHER_REL_TYPE]->(x) WHERE entity.visibility? = \"PUBLIC\" "
+                + "RETURN  entity " + "ORDER BY id(entity) DESCENDING");
+
+        for (Map<String, Object> row: result ) {
+            Assert.assertEquals( "result row contains more than on element", 1, row.size() );
+        }
+
+        result = executionEngine.execute("CYPHER 1.9 "
+                + "START entity=node:global(\"(coll_name:*collab*) OR (collab_desc:*collab*)\") "
+                + "MATCH (entity)-[:HAS|ANOTHER_REL_TYPE]->(x) WHERE entity.visibility? = \"PUBLIC\" "
+                + "RETURN DISTINCT entity");
+
+        for (Map<String, Object> row: result ) {
+            Assert.assertEquals( "result row contains more than on element", 1, row.size() );
+        }
+
+         result = executionEngine.execute("CYPHER 1.9 "
                 + "START entity=node:global(\"(coll_name:*collab*) OR (collab_desc:*collab*)\") "
                 + "MATCH (entity)-[:HAS|ANOTHER_REL_TYPE]->(x) WHERE entity.visibility? = \"PUBLIC\" "
                 + "RETURN DISTINCT entity " + "ORDER BY id(entity) DESCENDING");
